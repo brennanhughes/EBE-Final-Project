@@ -3,7 +3,7 @@ int tileSize = 10;
 int tilesWide;
 int tilesHigh;
 Tile[][] tiles;
-float reproduceChance = 0.1;
+//float reproduceChance = 0.5;
 
 void setup() {
   // initialize canvas
@@ -21,7 +21,7 @@ void setup() {
   // choose starting point
   //TODO: have user input starting position with mouse click
   startingPoint = new Position(tilesWide/2, tilesHigh/2);
-  tiles[startingPoint.x][startingPoint.y].setEntity(new Slime());
+  tiles[startingPoint.x][startingPoint.y].setEntity(new Slime(startingPoint.x, startingPoint.y, null));
   
   //TODO: place food
 }
