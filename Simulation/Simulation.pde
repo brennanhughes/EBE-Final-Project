@@ -1,5 +1,5 @@
 Position startingPoint;
-int tileSize = 10;
+int tileSize = 2;
 int tilesWide;
 int tilesHigh;
 Tile[][] tiles;
