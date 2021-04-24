@@ -1,0 +1,223 @@
+// GLOBAL **********************************************************************
+boolean secondBestRules = false;
+int sidelength = 20;
+int tilesWide;
+int tilesTall;
+Tile[][] tiles;
+boolean startSet;
+Position start;
+ArrayList<Position> foodPositions;
+boolean run;
+boolean startAdded;
+ArrayList<Tile> frontier;
+ArrayList<Tile> interior;
+HashMap<Tile, Float> distanceFromFood;
+HashMap<Tile,Tile> parent;
+final int INT_MAX = 2147483647;
+float time;
+// *****************************************************************************
+
+// SETUP ***********************************************************************
+void setup(){
+  // canvas creation
+  size(600,600);
+  background(42);
+  noStroke();
+  // collection initialization
+  frontier = new ArrayList<Tile>();
+  interior = new ArrayList<Tile>();
+  distanceFromFood = new HashMap<Tile, Float>();
+  parent = new HashMap<Tile, Tile>();
+  // initialize tiles
+  tilesWide = width/sidelength;
+  tilesTall = height/sidelength;
+  tiles = new Tile[tilesTall][tilesWide];
+  fillTiles();
+  start = new Position(0, 0);
+  foodPositions = new ArrayList<Position>();
+  run = false;
+  startAdded = false;
+  time = 0;
+}
+
+void fillTiles() {
+  for (int y = 0; y < tilesTall; y++) {
+    for (int x = 0; x < tilesWide; x++) {
+      tiles[y][x] = new Tile(new Position(x,y));
+    }
+  }
+}
+// *****************************************************************************
+
+// DRAW ************************************************************************
+void draw() {
+  background(42);
+  for (Tile[] row : tiles) {
+    for (Tile t : row) {
+      t.drawTile();
+    }
+  }
+  if (run) {
+    // initial setup, only runs on first loop
+    if (!startAdded) {
+      setupAStar();
+      startAdded = true;
+    }
+    // if open unempty and path not found, loop
+    if (!frontier.isEmpty()){ // && !found) {
+      aStarLoop();
+    }
+    // no more fresh food end here
+    if (foodPositions.isEmpty()) {
+      run = false;
+    }
+    /*
+    // if open empty and path not found
+    if (open.isEmpty() && !found) {
+      // path does not exist
+    }
+    */
+    /*
+    // if found, draw path
+    if (found) {
+      drawPath();
+    }
+    */
+  }
+  time += 0.1;
+  if(time > 2*PI){
+    time = 0;
+  }
+}
+// *****************************************************************************
+
+// HELPER FUNCTIONS ************************************************************
+void setupAStar(){
+  addToFrontier(tiles[start.y][start.x]);
+  distanceFromFood.put(tiles[start.y][start.x], getDistanceFromFood(tiles[start.y][start.x]));
+}
+
+void aStarLoop() {
+  Tile cur = lowestDistance();
+  addToInterior(cur);
+  if (cur.isFood()) {
+    removeFood(cur);
+  }
+  ArrayList<Tile> neighbors = getNeighbors(cur);
+  for (Tile n : neighbors) {
+    // if not walkable or if interior, ignore
+    if (n.isWall() || interior.contains(n)) continue;
+    if (!frontier.contains(n)) {
+      addToFrontier(n);
+      parent.put(n, cur);
+      // gCost.put(n, gCost.get(cur) + 1);
+      // fCost.put(n, gCost.get(n) + h(n));
+      distanceFromFood.put(n, getDistanceFromFood(n));
+    }
+    /*
+    else if (frontier.contains(n)) {
+      float tentG = gCost.get(cur) + addG;
+      if (tentG < gCost.get(n)) {
+        parent.put(n, cur);
+        gCost.put(n, tentG);
+        fCost.put(n, gCost.get(n) + h(n));
+      }
+    }
+    */
+  }
+}
+
+void removeFood(Tile t){
+  int indexMatch = -1;
+  int foodCount = foodPositions.size();
+  for (int i = 0; i < foodCount; i++) {
+    Position pos = foodPositions.get(i);
+    if (pos.x == t.pos.x && pos.y == t.pos.y) {
+      indexMatch = i;
+    }
+  }
+  foodPositions.remove(indexMatch);
+}
+
+ArrayList<Tile> getNeighbors(Tile t){
+  ArrayList<Tile> neighbors = new ArrayList<Tile>();
+  if(t.pos.x + 1 < tilesWide) neighbors.add(tiles[t.pos.y][t.pos.x + 1]);
+  if(t.pos.x - 1 >= 0) neighbors.add(tiles[t.pos.y][t.pos.x - 1]);
+  if(t.pos.y + 1 < tilesTall) neighbors.add(tiles[t.pos.y + 1][t.pos.x]);
+  if(t.pos.y - 1 >= 0) neighbors.add(tiles[t.pos.y - 1][t.pos.x]);
+  return neighbors;
+}
+
+Tile lowestDistance() {
+  float minDistance = distanceFromFood.get(frontier.get(0));
+  Tile best = frontier.get(0);
+  Tile secondBest = best;
+  for (Tile t : frontier) {
+    if (distanceFromFood.get(t) < minDistance) {
+      minDistance = distanceFromFood.get(t);
+      secondBest = best;
+      best = t;
+    }
+  }
+  if (frontier.size() > 1 && secondBestRules) {
+    return secondBest;
+  }
+  return best;
+}
+
+Float getDistanceFromFood(Tile t){
+  // looking for distance from closest food particle
+  int foodCount = foodPositions.size();
+  float minDistance = INT_MAX;
+  for (int i = 0; i < foodCount; i++) {
+    float curDistance = sqrt((float) (Math.pow(t.pos.x - foodPositions.get(i).x,2) + Math.pow(t.pos.y - foodPositions.get(i).y, 2)));
+    if (curDistance < minDistance) {
+      minDistance = curDistance;
+    }
+  }
+  
+  return minDistance;
+}
+
+void addToFrontier(Tile t){
+  frontier.add(t);
+  t.setFrontier();
+}
+
+void addToInterior(Tile t) {
+  frontier.remove(t);
+  t.setInterior();
+  interior.add(t);
+}
+// *****************************************************************************
+
+// USER INPUT ******************************************************************
+void keyPressed() {
+  if (!run) {
+    if (keyCode == 'S') {
+      if (startSet) {
+        tiles[start.y][start.x].setAgar();
+      }
+      start.y = mouseY/sidelength;
+      start.x = mouseX/sidelength;
+      tiles[start.y][start.x].setStart();
+      startSet = true;
+    } else if (keyCode == 'F') {
+      Position p = new Position(mouseX/sidelength, mouseY/sidelength);
+      tiles[p.y][p.x].setFood();
+      foodPositions.add(p);
+    } else if (keyCode == ENTER && startSet) {
+      run = true;
+    }
+  }
+  if (keyCode == BACKSPACE) {
+    setup();
+  }
+}
+
+void mousePressed() {
+  if (!run) {
+    tiles[mouseY/sidelength][mouseX/sidelength].toggleWall();
+  }
+}
+// *****************************************************************************
