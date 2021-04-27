@@ -78,9 +78,11 @@ class Tile {
   }
   
   void setColor() {
-    // slime texture
-    noiseSeed(int(random(INT_MAX)));
-    int slimeAlpha = floor(255 * (0.1 * sin(time)*sin(pos.x)*sin(pos.y)*(0.5*noise(pos.x,pos.y)+0.5) + 0.9));
+    int slimeAlpha;
+    if (texture) {
+      noiseSeed(int(random(INT_MAX)));
+      slimeAlpha = floor(255 * (0.1 * sin(time)*sin(pos.x)*sin(pos.y)*(0.5*noise(pos.x,pos.y)+0.5) + 0.9));
+    } else slimeAlpha = 255;
     // isFrontier/isInterior (only color if not covering vital info)
     if (isFrontier && !isStart && !isFood && !isWall) {
       col = color(245, 184, 46, slimeAlpha); // maximum yellow red
@@ -95,7 +97,8 @@ class Tile {
     } else if (isAgar && !isFrontier && !isInterior) { // only color if not part of plasmodium
       col = color(42); // dark gray
     } else if (isWall) { // always color walls
-      col = color(213); // light gray
+      if (colorWalls) col = color(213); // light gray
+      else col = color(42);
     }
   }
   

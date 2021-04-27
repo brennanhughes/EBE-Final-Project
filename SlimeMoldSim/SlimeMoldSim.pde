@@ -1,6 +1,11 @@
+import java.util.HashSet;
+
 // GLOBAL **********************************************************************
-boolean secondBestRules = false;
-int sidelength = 20;
+boolean setupRandom = true;
+boolean randomWalls = true;
+boolean colorWalls = true;
+boolean texture = false;
+int sidelength = 2;
 int tilesWide;
 int tilesTall;
 Tile[][] tiles;
@@ -38,12 +43,49 @@ void setup(){
   run = false;
   startAdded = false;
   time = 0;
+  if (setupRandom) {
+    setupRandom();
+  }
+  if (randomWalls) {
+    randomWalls();
+  }
 }
 
 void fillTiles() {
   for (int y = 0; y < tilesTall; y++) {
     for (int x = 0; x < tilesWide; x++) {
       tiles[y][x] = new Tile(new Position(x,y));
+    }
+  }
+}
+
+void setupRandom() {
+  HashSet<Position> randomFood = new HashSet<Position>();
+  int numFood = tilesWide;
+  for(int i = 0; i < numFood; i++) {
+    randomFood.add(new Position(int(random(0,tilesWide)), int(random(0,tilesTall))));
+  }
+  
+  for(Position pos : randomFood) {
+    foodPositions.add(pos);
+    tiles[pos.y][pos.x].setFood();
+  }
+  start.x = int(random(0,tilesWide));
+  start.y = int(random(0,tilesTall));
+  tiles[start.y][start.x].setStart();
+  startSet = true;
+}
+
+void randomWalls() {
+  HashSet<Position> randomWall = new HashSet<Position>();
+  int numWall = tilesWide*50;
+  for(int i = 0; i < numWall; i++) {
+    randomWall.add(new Position(int(random(0,tilesWide)), int(random(0,tilesTall))));
+  }
+  
+  for(Position pos : randomWall) {
+    if (!foodPositions.contains(pos)){
+      tiles[pos.y][pos.x].toggleWall();
     }
   }
 }
@@ -65,24 +107,12 @@ void draw() {
     }
     // if open unempty and path not found, loop
     if (!frontier.isEmpty()){ // && !found) {
-      aStarLoop();
+      pathFindLoop();
     }
     // no more fresh food end here
     if (foodPositions.isEmpty()) {
       run = false;
     }
-    /*
-    // if open empty and path not found
-    if (open.isEmpty() && !found) {
-      // path does not exist
-    }
-    */
-    /*
-    // if found, draw path
-    if (found) {
-      drawPath();
-    }
-    */
   }
   time += 0.1;
   if(time > 2*PI){
@@ -97,7 +127,7 @@ void setupAStar(){
   distanceFromFood.put(tiles[start.y][start.x], getDistanceFromFood(tiles[start.y][start.x]));
 }
 
-void aStarLoop() {
+void pathFindLoop() {
   Tile cur = lowestDistance();
   addToInterior(cur);
   if (cur.isFood()) {
@@ -110,20 +140,8 @@ void aStarLoop() {
     if (!frontier.contains(n)) {
       addToFrontier(n);
       parent.put(n, cur);
-      // gCost.put(n, gCost.get(cur) + 1);
-      // fCost.put(n, gCost.get(n) + h(n));
       distanceFromFood.put(n, getDistanceFromFood(n));
     }
-    /*
-    else if (frontier.contains(n)) {
-      float tentG = gCost.get(cur) + addG;
-      if (tentG < gCost.get(n)) {
-        parent.put(n, cur);
-        gCost.put(n, tentG);
-        fCost.put(n, gCost.get(n) + h(n));
-      }
-    }
-    */
   }
 }
 
@@ -151,16 +169,11 @@ ArrayList<Tile> getNeighbors(Tile t){
 Tile lowestDistance() {
   float minDistance = distanceFromFood.get(frontier.get(0));
   Tile best = frontier.get(0);
-  Tile secondBest = best;
   for (Tile t : frontier) {
     if (distanceFromFood.get(t) < minDistance) {
       minDistance = distanceFromFood.get(t);
-      secondBest = best;
       best = t;
     }
-  }
-  if (frontier.size() > 1 && secondBestRules) {
-    return secondBest;
   }
   return best;
 }
@@ -213,11 +226,14 @@ void keyPressed() {
   if (keyCode == BACKSPACE) {
     setup();
   }
+  if (keyCode == 'H') {
+    colorWalls = !colorWalls;
+  }
 }
 
 void mousePressed() {
-  if (!run) {
+  //if (!run) {
     tiles[mouseY/sidelength][mouseX/sidelength].toggleWall();
-  }
+  //}
 }
 // *****************************************************************************
