@@ -1,11 +1,15 @@
 import java.util.HashSet;
 
+// CONFIG **********************************************************************
+boolean setupRandom = false;
+boolean randomWalls = false;
+boolean texture = true;
+// *****************************************************************************
+
 // GLOBAL **********************************************************************
-boolean setupRandom = true;
-boolean randomWalls = true;
-boolean colorWalls = true;
-boolean texture = false;
-int sidelength = 2;
+boolean frameByFrame = false; // PRESS 'P' TO TOGGLE, if enabled press enter to advance
+boolean colorWalls = true; // PRESS 'H' TO TOGGLE
+int sidelength = 20;
 int tilesWide;
 int tilesTall;
 Tile[][] tiles;
@@ -118,6 +122,10 @@ void draw() {
   if(time > 2*PI){
     time = 0;
   }
+  
+  if (frameByFrame) {
+    run = false;
+  }
 }
 // *****************************************************************************
 
@@ -228,6 +236,9 @@ void keyPressed() {
   }
   if (keyCode == 'H') {
     colorWalls = !colorWalls;
+  }
+  if (keyCode == 'P') {
+    frameByFrame= !frameByFrame;
   }
 }
 
