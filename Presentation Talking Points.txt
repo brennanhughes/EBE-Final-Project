@@ -1,0 +1,42 @@
+Brennan Hughes
+Slime Mold Simulation Presentation Talking Points
+
+Speak while screen sharing the simulation. 
+
+For those not in attendance, sample recordings have been included along with the source code in the git repository at https://github.com/brennanhughes/EBE-Final-Project)
+
+Slime mold (Physarum polycephalum) is a protist that forms a plasmodium that exhibits some interesting behavior.
+
+When placed in a dish with food sources and given the opportunity to grow, the mold creates a very efficient system of tendrils linking the food sources together.
+
+One experiment involved placing the plasmodium in a dish shaped like Japan with food sources at the major cities. After some time, the plasmodium developed a shape that was a very good approximate of the rail system in Japan.
+
+For my project, I tasked myself with creating a computer program that would simulate the behavior of slime mold that could create an approximation of the “roadmaps” that the organism can create, but in a shorter time.
+
+I used the Processing language, which is optimized for visual design.
+
+The program starts with the need for user input. The user must place the starting cell and one or more particles of food. If desired, the user can also place walls.
+
+Then, the user can run the simulation.
+
+There are also a few configuration variables that the user can change prior to launching the program, like cell size.
+
+I implemented this simulation by using what is called a greedy best-first search.
+
+Essentially, every frame, the cell that is closest to an uncolonized food particle reproduces.
+
+Using this algorithm, the simulation creates an approximation to the “minimum spanning tree” that encompasses all the food particles.
+
+Minimum spanning tree is a term from graph theory that essentially means that it is the best set of paths that doesn’t loop back on itself (create a cycle) that visits every food particle.
+
+Now, I’d like to talk about certain things I’d like to improve from this version.
+
+I’d like to use a different method of chemosensation and reproduction.
+
+The greedy best-first search is an ok approximation for the behavior of the slime mold, but I think if I implemented some sort of model for the diffusion of food particles and a way for the cells to respond to the scent, the model would be more natural.
+
+The cells wouldn’t know the exact distance to every food particle as they do now, they would simply respond to the concentration of a food particle’s scent, which would create a more realistic wandering that is not currently present. Currently, the plasmodium makes direct beelines to the food, but with a better model, there would be some more imperfection.
+
+This diffusion model would also allow for an application to mazes, as the scent wouldn’t travel through walls.
+
+Overall though, I’m happy with how this turned out given my current abilities.
