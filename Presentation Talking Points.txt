@@ -11,6 +11,8 @@ When placed in a dish with food sources and given the opportunity to grow, the m
 
 One experiment involved placing the plasmodium in a dish shaped like Japan with food sources at the major cities. After some time, the plasmodium developed a shape that was a very good approximate of the rail system in Japan.
 
+When learning about the intercellular signaling used by multicellular organisms in class, this organism is something that came to mind.
+
 For my project, I tasked myself with creating a computer program that would simulate the behavior of slime mold that could create an approximation of the “roadmaps” that the organism can create, but in a shorter time.
 
 I used the Processing language, which is optimized for visual design.
