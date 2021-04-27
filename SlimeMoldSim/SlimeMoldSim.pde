@@ -1,6 +1,7 @@
 import java.util.HashSet;
 
 // CONFIG **********************************************************************
+int sidelength = 10;
 boolean setupRandom = false;
 boolean randomWalls = false;
 boolean texture = true;
@@ -9,7 +10,6 @@ boolean texture = true;
 // GLOBAL **********************************************************************
 boolean frameByFrame = false; // PRESS 'P' TO TOGGLE, if enabled press enter to advance
 boolean colorWalls = true; // PRESS 'H' TO TOGGLE
-int sidelength = 20;
 int tilesWide;
 int tilesTall;
 Tile[][] tiles;
